@@ -33,7 +33,7 @@ func configKey() string {
 		log.Fatal(err)
 	}
 	conf := &KeyStruct{}
-	err := json.Unmarshal(confContent, conf)
+	err = json.Unmarshal(confContent, conf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,10 +65,15 @@ func listLights() (string, error) {
 	lightArr := make([]LightsStruct, 0)
 	json.Unmarshal([]byte(data), &lightArr)
 
+	if len(lightArr) < 1 {
+		return "", errors.New("no lights found")
+	}
+
 	if lightArr[0].Power == "off" {
 		return "", errors.New("light is off")
 	}
-	revertColor := `hue:` + fmt.Sprint(lightArr[0].Color.Hue) + ` saturation:` + fmt.Sprint(lightArr[0].Color.Sat) + ` brightness:` + fmt.Sprint(lightArr[0].Bright) + ` kelvin:` + fmt.Sprint(lightArr[0].Color.Kelv)
+	revertColor := fmt.Sprintf("hue:%s saturation:%s brightness:%s kelvin:%s", lightArr[0].Color.Hue, lightArr[0].Color.Sat, lightArr[0].Bright, fmt.Sprint(lightArr[0].Color.Kelv))
+	// revertColor := `hue:` + fmt.Sprint(lightArr[0].Color.Hue) + ` saturation:` + fmt.Sprint(lightArr[0].Color.Sat) + ` brightness:` + fmt.Sprint(lightArr[0].Bright) + ` kelvin:` + fmt.Sprint(lightArr[0].Color.Kelv)
 	// fmt.Println(revertColor)
 	log.Printf("revertColor: %s", revertColor)
 
@@ -76,6 +81,8 @@ func listLights() (string, error) {
 }
 
 func setColor(paColor string) {
+	key := configKey()
+	bearer := fmt.Sprintf("Bearer %s", key)
 	// ***Set Color***
 	params := fmt.Sprintf("power=on&color=%s&duration=0", paColor)
 	body := strings.NewReader(params)
@@ -83,7 +90,7 @@ func setColor(paColor string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	req.Header.Set("Authorization", "Bearer ca01913ce83448753a584e3e141d9d4bea6677f42ffc8f184db21ecb0d770e9d")
+	req.Header.Set("Authorization", bearer)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := http.DefaultClient.Do(req)
