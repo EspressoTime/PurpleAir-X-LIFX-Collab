@@ -28,7 +28,7 @@ type ColorStruct struct {
 }
 
 func configKey() string {
-	confContent, err := ioutil.ReadFile("config.json")
+	confContent, err := ioutil.ReadFile("/root/air/config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +72,10 @@ func listLights() (string, error) {
 	if lightArr[0].Power == "off" {
 		return "", errors.New("light is off")
 	}
-	revertColor := fmt.Sprintf("hue:%s saturation:%s brightness:%s kelvin:%s", lightArr[0].Color.Hue, lightArr[0].Color.Sat, lightArr[0].Bright, fmt.Sprint(lightArr[0].Color.Kelv))
+	revertColor := fmt.Sprintf(
+		"hue:%f saturation:%f brightness:%f kelvin:%d", 
+		lightArr[0].Color.Hue, lightArr[0].Color.Sat, 
+		lightArr[0].Bright, lightArr[0].Color.Kelv)
 	// revertColor := `hue:` + fmt.Sprint(lightArr[0].Color.Hue) + ` saturation:` + fmt.Sprint(lightArr[0].Color.Sat) + ` brightness:` + fmt.Sprint(lightArr[0].Bright) + ` kelvin:` + fmt.Sprint(lightArr[0].Color.Kelv)
 	// fmt.Println(revertColor)
 	log.Printf("revertColor: %s", revertColor)
